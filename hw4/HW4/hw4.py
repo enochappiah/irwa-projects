@@ -108,7 +108,7 @@ def crawl(root, within_domain, wanted_content):
                     continue
                 extracted.append(ex)
                 extractlog.debug(ex)   
-                
+
             queue.put(link)
 
         if within_domain and url != root and parse.urlparse(url).netloc != domain_name: #dont visit urls outside of domain if within_domain is True
@@ -116,6 +116,7 @@ def crawl(root, within_domain, wanted_content):
         elif within_domain == False and url != root and parse.urlparse(url).netloc == domain_name: #dont visit self referencing urls
             continue
         else:
+            print("URL: ", url)
             visited.append(url) #If this comes before exception, it will be added to visited even if exception is raised
             visitlog.debug(url)
 
@@ -138,7 +139,7 @@ def extract_information(address, html):
         results.append((address, 'EMAIL', match))
     
     #extracting addresses and appending them to results
-    for match in re.findall(r'[a-zA-Z][a-zA-Z]\d{5}', str(html)): #TODO NEED TO FIX THIS REGEX
+    for match in re.findall(r'[a-zA-Z]+, [a-zA-Z]+ \d{5}', str(html)): #TODO NEED TO FIX THIS REGEX
         results.append((address, 'ADDRESS', match))
 
     return results
