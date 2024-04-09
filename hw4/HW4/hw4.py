@@ -86,31 +86,9 @@ def crawl(root, within_domain, wanted_content):
         url = queue.get()
         i += 1
         #skip urls that are visited
-        '''if url in visited:
+        if url in visited:
             continue
-        try:
-            req = request.urlopen(url)
-            html = req.read()
-
-            
-           #grab current domain name
-            domain_name_curr = parse.urlparse(url).netloc
-
-            #grab content type from url
-            content_type = req.headers['Content-Type']
-            if wanted_content and url != root and content_type not in wanted_content:
-                continue
-
-            #don't visit self-referenceing urls
-            #print(domain_name_curr, domain_name)
-            if domain_name_curr == domain_name and url != root: #TODO is this the right way to do this? Cannot NOT visit self-referencing urls and do within domain at the same time then
-                continue
-            
-            #only visit urls within the domain if within_domain is True and the url is not the root
-            if within_domain:
-                if url != root and not domain_name_curr.startswith(domain_name):
-                    continue'''
-        
+    
         visited.append(url)
         visitlog.debug(url)
         try:
@@ -120,13 +98,10 @@ def crawl(root, within_domain, wanted_content):
             print(e, url)
             continue
 
-        
-
         for link, title in parse_links(url, html):
                 
             if link in visited: 
                 continue
-            
                 
             domain_name_curr = parse.urlparse(link).netloc
             content_type = req.headers['Content-Type']
@@ -140,10 +115,7 @@ def crawl(root, within_domain, wanted_content):
             if within_domain:
                 if url != root and not domain_name_curr == domain_name:
                     continue
-                    
-                    
-                
-                            
+                                             
             for ex in extract_information(url, html):
                 extracted.append(ex)
                 extractlog.debug(ex)   

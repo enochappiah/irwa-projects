@@ -29,11 +29,9 @@ http://www.cs.jhu.edu
 http://www.jhu.edu
 http://www.clsp.jhu.edu
 http://www.cis.upenn.edu/
-http://www.cis.upenn.edu/
 http://www.harvard.edu
 http://www.aclweb.org
 http://www.cs.jhu.edu/~yarowsky/sigdat.html
-http://www.aclweb.org
 http://cljournal.org
 http://mirror.aclweb.org/emnlp2013/
 http://mirror.aclweb.org/ijcnlp11/
@@ -43,7 +41,6 @@ http://www.cs.ust.hk/acl2000/
 https://www.cs.cornell.edu/home/llee/emnlp.html
 https://aclweb.org/mirror/acl2003/
 http://www.cs.jhu.edu/~svitlana/workshop.html
-http://www.cs.jhu.edu/~yarowsky/sigdat.html
 https://aclweb.org/aclwiki/ACL_Fellows
 http://www.cs.jhu.edu/~yarowsky/pubs.html
 http://www.cs.jhu.edu/~yarowsky/cs466.html
