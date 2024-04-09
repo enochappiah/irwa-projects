@@ -87,10 +87,7 @@ def crawl(root, within_domain, wanted_content):
         i += 1
         #skip urls that are visited
         if url in visited:
-            continue
-    
-        visited.append(url)
-        visitlog.debug(url)
+            continue 
         try:
             req = request.urlopen(url)
             html = req.read()
@@ -98,40 +95,29 @@ def crawl(root, within_domain, wanted_content):
             print(e, url)
             continue
 
-        for link, title in parse_links(url, html):
-                
-            if link in visited: 
-                continue
-                
-            domain_name_curr = parse.urlparse(link).netloc
-            content_type = req.headers['Content-Type']
-            if wanted_content and url != root and content_type not in wanted_content:
-                continue
-                    #don't visit self-referenceing urls
-                    #print(domain_name_curr, domain_name)
-            '''if domain_name_curr == domain_name and url != root:
-                continue'''
+        content_type = req.headers['Content-Type']
+        if wanted_content and url != root and content_type not in wanted_content:
+            continue
 
-            if within_domain:
-                if url != root and not domain_name_curr == domain_name:
+        for link, title in parse_links(url, html):    
+            if link in visited: 
+                continue   
+
+            for ex in extract_information(url, html): # Is extracted supposed to follow within_domain restriction? If SO, uncomment the previous if statement
+                if ex in extracted:
                     continue
-                                             
-            for ex in extract_information(url, html):
                 extracted.append(ex)
                 extractlog.debug(ex)   
-            
-            
-
+                
             queue.put(link)
 
-        
-
-        '''except Exception as e:
-            print(e, url)
-            continue'''
-
-        
-        
+        if within_domain and url != root and parse.urlparse(url).netloc != domain_name: #dont visit urls outside of domain if within_domain is True
+            continue
+        elif within_domain == False and url != root and parse.urlparse(url).netloc == domain_name: #dont visit self referencing urls
+            continue
+        else:
+            visited.append(url) #If this comes before exception, it will be added to visited even if exception is raised
+            visitlog.debug(url)
 
 
     return visited, extracted
@@ -152,7 +138,7 @@ def extract_information(address, html):
         results.append((address, 'EMAIL', match))
     
     #extracting addresses and appending them to results
-    for match in re.findall(r'[a-zA-Z][a-zA-Z]\d{5}', str(html)):
+    for match in re.findall(r'[a-zA-Z][a-zA-Z]\d{5}', str(html)): #TODO NEED TO FIX THIS REGEX
         results.append((address, 'ADDRESS', match))
 
     return results
@@ -173,7 +159,7 @@ def main():
     nonlocal_links = get_nonlocal_links(site)
     writelines('nonlocal.txt', nonlocal_links)
 
-    wanted_content = []
+    wanted_content = [] #'text/html', 'application/pdf', 'application/zip'
     
     visited, extracted = crawl(site, False, wanted_content)
     writelines('visited.txt', visited)
