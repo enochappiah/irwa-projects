@@ -1,4 +1,12 @@
-https://www.cs.jhu.edu
-https://imagine.jhu.edu/hire-at-hopkins/
-https://makeagift.jhu.edu/form/eng
-https://lists.cs.jhu.edu/mailman/listinfo/sem
+https://www.cs.jhu.edu/~yarowsky/cs466.html
+https://piazza.com/jhu/spring2024/601466666
+https://nlp.stanford.edu/IR-book/information-retrieval-book.html
+https://www.oreilly.com/openbook/webclient/
+https://prdownloads.sourceforge.net/weka/weka.ppt
+https://www.w3.org/pub/WWW/Protocols/
+http://www.jhu.edu
+http://www.cis.upenn.edu/
+http://www.harvard.edu
+http://cljournal.org
+http://www.cs.ust.hk/acl2000/
+https://www.cs.cornell.edu/home/llee/emnlp.html

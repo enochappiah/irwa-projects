@@ -51,8 +51,6 @@ def get_nonlocal_links(url):
     
 
     for link, title in links:
-        #print("DOMAIN NAME:",domain_name)
-        #print("PARSE OBJECT: ",parse.urlparse(link).netloc)
         if not parse.urlparse(link).netloc == domain_name:
             filtered.append((link, title))
 
@@ -116,7 +114,6 @@ def crawl(root, within_domain, wanted_content):
         elif within_domain == False and url != root and parse.urlparse(url).netloc == domain_name: #dont visit self referencing urls
             continue
         else:
-            print("URL: ", url)
             visited.append(url) #If this comes before exception, it will be added to visited even if exception is raised
             visitlog.debug(url)
 
