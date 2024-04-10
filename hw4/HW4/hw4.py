@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 from queue import Queue
 from urllib import parse, request
 from urllib.parse import urlparse
+import requests as res
 import requests
 import os
 import time
@@ -41,8 +42,8 @@ def last_modified(url,):
 def parse_links_sorted(root, html):
     # TODO: implement 
     #return a sorted list of (link, title) pairs
-<<<<<<< HEAD
     sorted_links = []
+    #APPARENTLY OUR SELF-REFERENCES PART MIGHT BE WRONG
 
     soup = BeautifulSoup(html, 'html.parser')
     for link in soup.find_all('a'):
@@ -57,9 +58,6 @@ def parse_links_sorted(root, html):
             sorted_links.append(parse.urljoin(root, link.get('href')), text, last_modified_date)
     
     return sorted_links.sort(key=lambda a: a[2])
-=======
-    #APPARENTLY OUR SELF-REFERENCES PART MIGHT BE WRONG
->>>>>>> bbdc385cb90c83699989d431f7d529422ec4b15f
 
 
 
