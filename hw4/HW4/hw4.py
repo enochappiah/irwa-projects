@@ -5,7 +5,9 @@ from bs4 import BeautifulSoup
 from queue import Queue
 from urllib import parse, request
 from urllib.parse import urlparse
-import requests as res
+import requests
+import os
+import time
 
 logging.basicConfig(level=logging.DEBUG, filename='output.log', filemode='w')
 visitlog = logging.getLogger('visited')
@@ -23,12 +25,38 @@ def parse_links(root, html):
             text = re.sub(r'\s+', ' ', text).strip()
             yield (parse.urljoin(root, link.get('href')), text)
 
+def last_modified(url,):
+    try:
+        response = requests.head(url)  # Send a HEAD request to fetch only the headers
+        last_modified = response.headers.get('Last-Modified')
+        if last_modified:
+            return last_modified
+        else:
+            return "Last-Modified header not found"
+    except requests.RequestException as e:
+        return f"Error: {e}"
+    #he mentioned pagerank, which i also saw can work to sort the links so i can ask about the implementation of that
+
 
 def parse_links_sorted(root, html):
     # TODO: implement 
     #return a sorted list of (link, title) pairs
+    sorted_links = []
 
-    return []
+    soup = BeautifulSoup(html, 'html.parser')
+    for link in soup.find_all('a'):
+        href = link.get('href')
+        if href:
+            text = link.string
+            if not text:
+                text = ''
+            text = re.sub(r'\s+', ' ', text).strip()
+            last_modified_date = last_modified(parse.urljoin(root, link.get('href')))
+    
+            sorted_links.append(parse.urljoin(root, link.get('href')), text, last_modified_date)
+    
+    return sorted_links.sort(key=lambda a: a[2])
+
 
 
 def get_links(url):
