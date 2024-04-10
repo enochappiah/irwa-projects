@@ -27,6 +27,7 @@ def parse_links(root, html):
 def parse_links_sorted(root, html):
     # TODO: implement 
     #return a sorted list of (link, title) pairs
+    #APPARENTLY OUR SELF-REFERENCES PART MIGHT BE WRONG
 
     return []
 
@@ -100,18 +101,19 @@ def crawl(root, within_domain, wanted_content):
         for link, title in parse_links(url, html):    
             if link in visited: 
                 continue   
-
-            for ex in extract_information(url, html): # Is extracted supposed to follow within_domain restriction? If SO, uncomment the previous if statement
+            if within_domain and url != root and parse.urlparse(url).netloc != domain_name: #dont visit urls outside of domain if within_domain is True
+                continue
+            for ex in extract_information(url, html): # Is extracted supposed to follow within_domain restriction? YES If SO, uncomment the previous if statement
                 if ex in extracted:
-                    continue
+                    continue 
                 extracted.append(ex)
                 extractlog.debug(ex)   
 
             queue.put(link)
 
-        if within_domain and url != root and parse.urlparse(url).netloc != domain_name: #dont visit urls outside of domain if within_domain is True
+        if url != root and check_self_reference(url, root): #dont visit self referencing urls #TODO lookup hostname lookup urlparse
             continue
-        elif within_domain == False and url != root and parse.urlparse(url).netloc == domain_name: #dont visit self referencing urls
+        if within_domain and url != root and parse.urlparse(url).netloc != domain_name: #dont visit urls outside of domain if within_domain is True
             continue
         else:
             visited.append(url) #If this comes before exception, it will be added to visited even if exception is raised
@@ -119,6 +121,30 @@ def crawl(root, within_domain, wanted_content):
 
 
     return visited, extracted
+
+def check_self_reference(url, root):
+    root_domain = urlparse(root).netloc
+    url_domain = urlparse(url).netloc
+
+    root_path = urlparse(root).path
+    url_path = urlparse(url).path
+    
+    url_fragment = urlparse(url).fragment
+
+    if (root_domain == url_domain and root_path == url_path) and url_fragment:
+        return True
+    if (root_path == url_path) and url_fragment:
+        return True
+    if (root_domain == url_domain and root_path == url_path):
+        return True
+    
+    if (root_path == url_path):
+        return True
+    
+    return False
+
+
+    
 
 
 def extract_information(address, html):
@@ -136,7 +162,7 @@ def extract_information(address, html):
         results.append((address, 'EMAIL', match))
     
     #extracting addresses and appending them to results
-    for match in re.findall(r'[a-zA-Z]+, [a-zA-Z]+ \d{5}', str(html)): #TODO NEED TO FIX THIS REGEX
+    for match in re.findall(r'[a-zA-Z]+, [a-zA-Z]+ \d{5}', str(html)): 
         results.append((address, 'ADDRESS', match))
 
     return results
