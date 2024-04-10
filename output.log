@@ -5,21 +5,28 @@ DEBUG:visited:https://www.cs.jhu.edu/~yarowsky/cs466.html
 DEBUG:charset_normalizer:Encoding detection: ascii is most likely the one.
 DEBUG:extracted:('https://www.cs.jhu.edu/~yarowsky/', 'EMAIL', 'yarowsky@jhu.edu')
 DEBUG:extracted:('https://www.cs.jhu.edu/~yarowsky/', 'ADDRESS', 'Baltimore, MD 21218')
+DEBUG:visited:https://www.cs.jhu.edu/~yarowsky/
 DEBUG:charset_normalizer:Encoding detection: ascii is most likely the one.
+DEBUG:visited:https://www.cs.jhu.edu/~yarowsky/466.officehours.html
 DEBUG:charset_normalizer:Encoding detection: Unable to determine any suitable charset.
 DEBUG:charset_normalizer:Encoding detection: Unable to determine any suitable charset.
 WARNING:bs4.dammit:Some characters could not be decoded, and were replaced with REPLACEMENT CHARACTER.
+DEBUG:visited:https://www.cs.jhu.edu/~yarowsky/601.466.l0.pdf
 DEBUG:charset_normalizer:Encoding detection: Unable to determine any suitable charset.
 DEBUG:charset_normalizer:Encoding detection: Unable to determine any suitable charset.
 WARNING:bs4.dammit:Some characters could not be decoded, and were replaced with REPLACEMENT CHARACTER.
+DEBUG:visited:https://www.cs.jhu.edu/~yarowsky/Gonzalez-vs-Google-case.pdf
 DEBUG:charset_normalizer:Encoding detection: ascii is most likely the one.
+DEBUG:visited:https://www.cs.jhu.edu/~yarowsky/601.466.on.exam.txt
 DEBUG:charset_normalizer:Encoding detection: ascii is most likely the one.
+DEBUG:visited:https://www.cs.jhu.edu/~yarowsky/cs466slides/
 DEBUG:extracted:('https://piazza.com/jhu/spring2024/601466666', 'EMAIL', 'sgruber8139@gmail.com')
 DEBUG:extracted:('https://piazza.com/jhu/spring2024/601466666', 'EMAIL', 'team@piazza.com')
 DEBUG:visited:https://piazza.com/jhu/spring2024/601466666
 DEBUG:charset_normalizer:Encoding detection: Unable to determine any suitable charset.
 DEBUG:charset_normalizer:Encoding detection: Unable to determine any suitable charset.
 WARNING:bs4.dammit:Some characters could not be decoded, and were replaced with REPLACEMENT CHARACTER.
+DEBUG:visited:http://www.cs.jhu.edu/~yarowsky/cs466.pdf
 DEBUG:visited:https://nlp.stanford.edu/IR-book/information-retrieval-book.html
 DEBUG:charset_normalizer:Encoding detection: ascii is most likely the one.
 DEBUG:extracted:('https://www.oreilly.com/openbook/webclient/', 'EMAIL', 'webmaster@oreilly.com')
@@ -27,30 +34,39 @@ DEBUG:visited:https://www.oreilly.com/openbook/webclient/
 DEBUG:charset_normalizer:Encoding detection: Unable to determine any suitable charset.
 DEBUG:charset_normalizer:Encoding detection: Unable to determine any suitable charset.
 WARNING:bs4.dammit:Some characters could not be decoded, and were replaced with REPLACEMENT CHARACTER.
+DEBUG:visited:https://www.cs.jhu.edu/~yarowsky/601.466.hw1.pdf
 DEBUG:charset_normalizer:Encoding detection: Unable to determine any suitable charset.
 DEBUG:charset_normalizer:Encoding detection: Unable to determine any suitable charset.
 WARNING:bs4.dammit:Some characters could not be decoded, and were replaced with REPLACEMENT CHARACTER.
+DEBUG:visited:https://www.cs.jhu.edu/~yarowsky/601.466.hw1.zip
 DEBUG:charset_normalizer:Encoding detection: Unable to determine any suitable charset.
 DEBUG:charset_normalizer:Encoding detection: Unable to determine any suitable charset.
 WARNING:bs4.dammit:Some characters could not be decoded, and were replaced with REPLACEMENT CHARACTER.
+DEBUG:visited:https://www.cs.jhu.edu/~yarowsky/601.466.hw2.pdf
 DEBUG:charset_normalizer:Encoding detection: Unable to determine any suitable charset.
 DEBUG:charset_normalizer:Encoding detection: Unable to determine any suitable charset.
 WARNING:bs4.dammit:Some characters could not be decoded, and were replaced with REPLACEMENT CHARACTER.
+DEBUG:visited:https://www.cs.jhu.edu/~yarowsky/601.466.hw2.zip
 DEBUG:charset_normalizer:Encoding detection: Unable to determine any suitable charset.
 DEBUG:charset_normalizer:Encoding detection: Unable to determine any suitable charset.
 WARNING:bs4.dammit:Some characters could not be decoded, and were replaced with REPLACEMENT CHARACTER.
+DEBUG:visited:https://www.cs.jhu.edu/~yarowsky/601.466.hw3.pdf
 DEBUG:charset_normalizer:Encoding detection: Unable to determine any suitable charset.
 DEBUG:charset_normalizer:Encoding detection: Unable to determine any suitable charset.
 WARNING:bs4.dammit:Some characters could not be decoded, and were replaced with REPLACEMENT CHARACTER.
+DEBUG:visited:https://www.cs.jhu.edu/~yarowsky/601.466.hw3.zip
 DEBUG:charset_normalizer:Encoding detection: Unable to determine any suitable charset.
 DEBUG:charset_normalizer:Encoding detection: Unable to determine any suitable charset.
 WARNING:bs4.dammit:Some characters could not be decoded, and were replaced with REPLACEMENT CHARACTER.
+DEBUG:visited:https://www.cs.jhu.edu/~yarowsky/601.466.hw4.pdf
 DEBUG:charset_normalizer:Encoding detection: Unable to determine any suitable charset.
 DEBUG:charset_normalizer:Encoding detection: Unable to determine any suitable charset.
 WARNING:bs4.dammit:Some characters could not be decoded, and were replaced with REPLACEMENT CHARACTER.
+DEBUG:visited:http://www.cs.jhu.edu/~yarowsky/601.466.hw4.zip
 DEBUG:charset_normalizer:Encoding detection: Unable to determine any suitable charset.
 DEBUG:charset_normalizer:Encoding detection: Unable to determine any suitable charset.
 WARNING:bs4.dammit:Some characters could not be decoded, and were replaced with REPLACEMENT CHARACTER.
+DEBUG:visited:https://www.cs.jhu.edu/~yarowsky/601.466.pr.pdf
 DEBUG:charset_normalizer:Encoding detection: Unable to determine any suitable charset.
 DEBUG:charset_normalizer:Encoding detection: Unable to determine any suitable charset.
 WARNING:bs4.dammit:Some characters could not be decoded, and were replaced with REPLACEMENT CHARACTER.
@@ -66,6 +82,7 @@ DEBUG:extracted:('https://www.w3.org/pub/WWW/Protocols/', 'EMAIL', 'w3c-dist-aut
 DEBUG:extracted:('https://www.w3.org/pub/WWW/Protocols/', 'EMAIL', 'www-security@nsmx.rutgers.edu')
 DEBUG:visited:https://www.w3.org/pub/WWW/Protocols/
 DEBUG:extracted:('http://www.cs.jhu.edu', 'EMAIL', 'contactus@cs.jhu.edu')
+DEBUG:visited:http://www.cs.jhu.edu
 DEBUG:extracted:('http://www.jhu.edu', 'PHONE', '410-516-8000')
 DEBUG:extracted:('http://www.jhu.edu', 'EMAIL', '25b32ee662884928bb7df398e8fb36f0@o106740.ingest.sentry.io')
 DEBUG:visited:http://www.jhu.edu
@@ -76,6 +93,7 @@ DEBUG:extracted:('http://www.cis.upenn.edu/', 'ADDRESS', 'Philadelphia, PA 19104
 DEBUG:visited:http://www.cis.upenn.edu/
 DEBUG:visited:http://www.harvard.edu
 DEBUG:charset_normalizer:Encoding detection: ascii is most likely the one.
+DEBUG:visited:http://www.cs.jhu.edu/~yarowsky/sigdat.html
 DEBUG:extracted:('http://cljournal.org', 'EMAIL', 'editor@cljournal.org')
 DEBUG:extracted:('http://cljournal.org', 'EMAIL', 'contact@cljournal.org')
 DEBUG:visited:http://cljournal.org
@@ -85,6 +103,7 @@ DEBUG:extracted:('https://www.cs.cornell.edu/home/llee/emnlp.html', 'EMAIL', 'do
 DEBUG:extracted:('https://www.cs.cornell.edu/home/llee/emnlp.html', 'EMAIL', 'yarowsky@cs.jhu.edu')
 DEBUG:visited:https://www.cs.cornell.edu/home/llee/emnlp.html
 DEBUG:charset_normalizer:Encoding detection: ascii is most likely the one.
+DEBUG:visited:http://www.cs.jhu.edu/~yarowsky/pubs.html
 DEBUG:charset_normalizer:Encoding detection: ascii is most likely the one.
 DEBUG:charset_normalizer:Encoding detection: ascii is most likely the one.
-DEBUG:charset_normalizer:Encoding detection: ascii is most likely the one.
+DEBUG:visited:http://www.cs.jhu.edu/~yarowsky/cs415.html
