@@ -14,14 +14,6 @@ logging.basicConfig(level=logging.DEBUG, filename='output.log', filemode='w')
 visitlog = logging.getLogger('visited')
 extractlog = logging.getLogger('extracted')
 
-class PriorityByDateItem:
-    def __init__(self, date, data):
-        self.date = date
-        self.data = data
-
-    def __lt__(self, other):
-        # Define custom comparison logic here
-        return self.date < other.date
     
 
 def parse_links(root, html):
@@ -35,72 +27,10 @@ def parse_links(root, html):
             text = re.sub(r'\s+', ' ', text).strip()
             yield (parse.urljoin(root, link.get('href')), text)
 
-def last_modified(url,):
-    try:
-        response = requests.head(url)  # Send a HEAD request to fetch only the headers
-        last_modified = response.headers.get('Last-Modified')
-        if last_modified:
-            return datetime.datetime.strptime(last_modified, '%a, %d %b %Y %H:%M:%S %Z')
-        else:
-            return "Last-Modified header not found"
-    except requests.RequestException as e:
-        return "bad url"
-
-    #he mentioned pagerank, which i also saw can work to sort the links so i can ask about the implementation of that
-
-def sort_by_timestamp(list_to_sort):
-    '''def get_timestamp(item):
-        timestamp = item[-1]
-        return datetime.datetime.strptime(timestamp, '%a, %d %b %Y %H:%M:%S %Z')'''
-    return sorted(list_to_sort, key=lambda item: item[-1])
-
-def parse_links_sorted(root, html):
-    # TODO: implement 
-    #return a sorted list of (link, title) pairs
-
-    links_without_dates = []
-
-    soup = BeautifulSoup(html, 'html.parser')
-    for link in soup.find_all('a'):
-        href = link.get('href')
-        if href:
-            text = link.string
-            if not text:
-                text = ''
-            text = re.sub(r'\s+', ' ', text).strip()
-            
-            last_modified_date = last_modified(parse.urljoin(root, link.get('href')))
-            if last_modified_date == "bad url":
-                continue
-                
-            if last_modified_date == "Last-Modified header not found":
-                links_without_dates.append((parse.urljoin(root, link.get('href')), text))
-                continue
-            
-
-    
-            #sorted_links.append((parse.urljoin(root, link.get('href')), text, last_modified_date))
-            yield (parse.urljoin(root, link.get('href')), text, last_modified_date)
-    #finished_list = sorted(sorted_links, key=lambda a: a[2])
-    # sorted_links.sort(key=lambda a: a[2]), links_without_dates
-
-    return links_without_dates
-
-
-
 def get_links(url):
     res = request.urlopen(url)
     return list(parse_links(url, res.read()))
 
-def get_links_sorted(url):
-    res = request.urlopen(url)
-    '''sorted_list = list(parse_links_sorted(url, res.read()))
-    print(sorted_list)
-    sorted_list.sort(key=lambda a: a[2])'''
-    unsorted_list = list(parse_links_sorted(url, res.read()))
-    sorted_list = sort_by_timestamp(unsorted_list)
-    #sorted_list = sorted(unsorted_list, key=lambda a: a[2])
-    return sorted_list
 
 
 def get_nonlocal_links(url):
@@ -108,23 +38,15 @@ def get_nonlocal_links(url):
     but only keep non-local links and non self-references.
     Return a list of (link, title) pairs, just like get_links()'''
 
-    # TODO: implement
     links = get_links(url)
     filtered = []
 
-    #grab the domain of the url
+
     domain_name = urlparse(url).netloc
-    
-    
 
     for link, title in links:
         if not parse.urlparse(link).netloc == domain_name:
             filtered.append((link, title))
-
-        #if link.startswith(url):
-         #   continue
-            
-
 
     return filtered
 
@@ -134,25 +56,16 @@ def crawl(root, within_domain, wanted_content):
     `wanted_content` is a list of content types to crawl
     `within_domain` specifies whether the crawler should limit itself to the domain of `root`
     '''
-    # TODO: implement
 
-
-    queue = PriorityQueue()
+    queue = Queue()
     queue.put(root)
-    #populate the queue with 
-    '''for link in get_links_sorted(root):
-        queue.put(link[0])'''
+
 
     visited = set()
     extracted = []
 
     #grab the domain of the url
     domain_name = urlparse(root).netloc
-    sorted_links = get_links_sorted(root)
-    for link, _, last_modified_date in sorted_links:
-        print(type(link))
-        print(type(last_modified_date))
-        queue.put(last_modified_date)
     i = 0
     
     while not queue.empty() and i < 20:
@@ -172,22 +85,8 @@ def crawl(root, within_domain, wanted_content):
         if wanted_content and url != root and content_type not in wanted_content:
             continue
         
-        sorted_links = get_links_sorted(url)
-        links_without_dates = parse_links_sorted(url, html)
-        sorted_links.extend(links_without_dates)
-        #print(links_without_dates)
-        
-        
 
-        if url != root and check_self_reference(url, root): #dont visit self referencing urls #TODO lookup hostname lookup urlparse
-            continue
-        if within_domain and url != root and parse.urlparse(url).netloc != domain_name: #dont visit urls outside of domain if within_domain is True
-            continue
-        else:
-            visited.add(url) #If this comes before exception, it will be added to visited even if exception is raised
-            visitlog.debug(url)
-
-        for link, _, last_modified_date in sorted_links(url):    
+        for link, title in parse_links(url):    
             if link in visited: 
                 continue   
             if within_domain and url != root and parse.urlparse(url).netloc != domain_name: #dont visit urls outside of domain if within_domain is True
@@ -196,9 +95,18 @@ def crawl(root, within_domain, wanted_content):
                 if ex in extracted:
                     continue 
                 extracted.append(ex)
-                extractlog.debug(ex)   
+                extractlog.debug(ex)  
+         
             
-            queue.put((last_modified_date))
+            queue.put(link)
+
+        if url != root and check_self_reference(url, root): #dont visit self referencing urls #TODO lookup hostname lookup urlparse
+            continue
+        if within_domain and url != root and parse.urlparse(url).netloc != domain_name: #dont visit urls outside of domain if within_domain is True
+            continue
+        else:
+            visited.add(url) #If this comes before exception, it will be added to visited even if exception is raised
+            visitlog.debug(url)
 
 
     return visited, extracted
@@ -260,9 +168,6 @@ def main():
 
     links = get_links(site)
     writelines('links.txt', links)
-
-    sorted_links = get_links_sorted(site)
-    writelines('sorted_links.txt', sorted_links)
 
     nonlocal_links = get_nonlocal_links(site)
     writelines('nonlocal.txt', nonlocal_links)
