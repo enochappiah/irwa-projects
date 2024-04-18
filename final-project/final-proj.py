@@ -9,6 +9,11 @@ import requests as res
 import requests
 import os
 import datetime
+from selenium import webdriver as wd
+from selenium.webdriver.common.by import By
+import selenium.webdriver.common.alert as Alert
+import time
+import random #random.randrange(5.0, 15.0)
 
 logging.basicConfig(level=logging.DEBUG, filename='output.log', filemode='w')
 visitlog = logging.getLogger('visited')
@@ -156,6 +161,14 @@ def extract_information(address, html):
 
     return results
 
+def get_customer_info():
+    with open('buy-info.txt', 'r') as f:
+        return dict([line.strip().split(':') for line in f])
+    
+def get_seller_info():
+    with open('book-sellers.txt', 'r') as f:
+        return [line.strip() for line in f]
+
 
 def writelines(filename, data):
     with open(filename, 'w') as fout:
@@ -164,7 +177,84 @@ def writelines(filename, data):
 
 
 def main():
-    site = sys.argv[1]
+    web = wd.Chrome()
+    web.implicitly_wait(10)
+    book_websites = get_seller_info()
+    book_matches = {}
+    for i in range(len(book_websites)):
+        
+        web.get(book_websites[i])
+        time.sleep(random.randrange(1, 5))
+        
+        # wait for an alert to appear and then dismiss it
+        try:
+            alert = web.switch_to.alert
+            alert.dismiss()
+        except:
+            pass
+
+        # get all forms on the page and iterate through the forms to find a form with the class name that contains 'search'
+        forms = web.find_elements(By.TAG_NAME, 'form')
+        for form in forms:
+            if 'search' in form.get_attribute('class'):
+                search_form = form
+                break
+        
+        search_form.find_element(By.TAG_NAME, 'input').send_keys('The Catcher in the Rye')
+        time.sleep(random.randrange(1, 10))
+        search_form.find_element(By.TAG_NAME, 'button').click()
+        time.sleep(random.randrange(1, 10))
+        divs = web.find_elements(By.TAG_NAME, 'div')
+        for result in divs:
+            if 'results' in result.get_attribute('class'):
+                search_results = result
+                break
+        product_links = search_results.find_elements(By.LINK_TEXT, 'The Catcher in the Rye')
+        for result in product_links:
+            book_matches[book_websites[i]] = result.get_attribute('href')
+            break
+    for key in book_matches:
+        web.get(book_matches[key])
+        time.sleep(random.randrange(1, 10))
+        # find elements that have a type=submit and search through the elements to find the one that has the value 'cart'
+        '''inputs = web.find_elements(By.TAG_NAME, 'input')
+        buttons = web.find_elements(By.TAG_NAME, 'button')
+        buttons.extend(inputs)
+        for button in buttons:
+            if button.get_attribute('type') == 'submit' and 'cart' in button.get_attribute('class'): # or 'cart' in button.get_attribute('value')
+                add_to_cart = button
+                print(type(add_to_cart))
+                break
+        add_to_cart.click()'''
+
+        add_to_cart_wall = web.find_elements(By.TAG_NAME, 'div')
+        for divs in add_to_cart_wall:
+            if 'cart' in divs.get_attribute('class') or 'cart' in divs.get_attribute('id'):
+                
+                button = divs.find_element(By.TAG_NAME, 'button')
+                break
+        button.click()
+        time.sleep(random.randrange(1, 5))
+        checkout_url = web.find_element(By.TAG_NAME,'a').get_attribute('href')
+        web.get(checkout_url)
+        time.sleep(random.randrange(1, 10))
+
+
+
+        
+
+
+
+        
+        
+
+
+   
+    
+
+    
+  
+    '''site = sys.argv[1]
 
     links = get_links(site)
     writelines('links.txt', links)
@@ -176,7 +266,7 @@ def main():
     
     visited, extracted = crawl(site, False, wanted_content)
     writelines('visited.txt', visited)
-    writelines('extracted.txt', extracted)
+    writelines('extracted.txt', extracted)'''
 
 
 if __name__ == '__main__':

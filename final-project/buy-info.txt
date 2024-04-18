@@ -1,0 +1,9 @@
+First Name:Blue
+Last Name:Jay
+Country:United States
+Street Address:1234 Elm St
+City:Springfield
+State:IL
+Zip Code:62701
+Phone Number:217-555-1234
+Email Address:emailaddress@gmail.com
