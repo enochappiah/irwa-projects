@@ -239,11 +239,11 @@ def main():
                 add_to_cart = input
                 break
         time.sleep(random.randrange(1, 5))'''
-        add_to_cart = web.find_element(By.XPATH, '/html/body/main/div[2]/div[2]/section/div[2]/div/div[3]/div[2]/div[2]/ul[1]/li[1]/div[2]/div/div/form/input[5]')
+        add_to_cart = web.find_element(By.XPATH, '//*[@id="skuSelection"]/div/form/input[5]')
         add_to_cart.submit()
         time.sleep(10)
-        checkout = web.find_element(By.XPATH, '/html/body/div[32]/div/div/div[2]/div[3]/div/div[5]/div[1]/a')
-        web.get(checkout)
+        checkout = web.find_element(By.TAG_NAME, 'a')
+        web.get(checkout.get_attribute('href'))
         time.sleep(9)
 
         
