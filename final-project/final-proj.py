@@ -181,6 +181,7 @@ def main():
     web.implicitly_wait(10)
     book_websites = get_seller_info()
     book_matches = {}
+    product_links = {}
     for i in range(len(book_websites)):
         
         web.get(book_websites[i])
@@ -192,106 +193,55 @@ def main():
             alert.dismiss()
         except:
             pass
-
+        
         # get all forms on the page and iterate through the forms to find a form with the class name that contains 'search'
-        forms = web.find_elements(By.TAG_NAME, 'form')
+        input_divs = web.find_elements(By.TAG_NAME, 'input')
+        for input in input_divs:
+            if 'search' in input.get_attribute('class').lower() or 'search' in input.get_attribute('placeholder').lower():
+                search_input = input
+                break
+
+        search_input.send_keys('memory foam mattress')
+        time.sleep(random.randrange(1, 10))
+        search_input.submit()
+        time.sleep(10)
+        '''forms = web.find_elements(By.TAG_NAME, 'input')
         for form in forms:
             if 'search' in form.get_attribute('class'):
-                search_form = form
+                search_input = form
                 break
         
-        search_form.find_element(By.TAG_NAME, 'input').send_keys('The Catcher in the Rye')
+        search_input.find_element(By.TAG_NAME, 'input').send_keys('memory foam mattress')
         time.sleep(random.randrange(1, 10))
-        search_form.find_element(By.TAG_NAME, 'button').click()
-        time.sleep(random.randrange(1, 10))
-        divs = web.find_elements(By.TAG_NAME, 'div')
-        for result in divs:
-            if 'results' in result.get_attribute('class'):
-                search_results = result
-                break
-        product_links = search_results.find_elements(By.LINK_TEXT, 'The Catcher in the Rye')
-        for result in product_links:
-            book_matches[book_websites[i]] = result.get_attribute('href')
-            break
-    for key in book_matches:
-        web.get(book_matches[key])
-        time.sleep(random.randrange(1, 10))
-        # find elements that have a type=submit and search through the elements to find the one that has the value 'cart'
-        '''inputs = web.find_elements(By.TAG_NAME, 'input')
-        buttons = web.find_elements(By.TAG_NAME, 'button')
-        buttons.extend(inputs)
-        for button in buttons:
-            if button.get_attribute('type') == 'submit' and 'cart' in button.get_attribute('class'): # or 'cart' in button.get_attribute('value')
-                add_to_cart = button
-                print(type(add_to_cart))
-                break
-        add_to_cart.click()'''
-
-        '''add_to_cart_div = web.find_elements(By.TAG_NAME, 'div')
-        for divs in add_to_cart_div:
-            if 'cart' in divs.get_attribute('class') or 'cart' in divs.get_attribute('id'):
-                add_to_cart = divs
-                #print(add_to_cart.accessible_name)
-                break'''
-        '''input_divs = web.find_elements(By.TAG_NAME, 'input')
-        for input in input_divs:
-            if 'cart' in input.get_attribute('class').lower() or 'cart' in input.get_attribute('value').lower():
-                add_to_cart = input
-                break
-        time.sleep(random.randrange(1, 5))'''
-        add_to_cart = web.find_element(By.XPATH, '//*[@id="skuSelection"]/div/form/input[5]')
-        add_to_cart.submit()
-        time.sleep(10)
-        checkout = web.find_element(By.TAG_NAME, 'a')
-        web.get(checkout.get_attribute('href'))
-        time.sleep(9)
-
-        
-        #print(add_to_cart)
-
-        '''checkout_url = web.find_element(By.TAG_NAME,'a').get_attribute('href')
-        web.get(checkout_url)'''
-       
-        
-        '''checkout = web.find_elements(By.TAG_NAME,'a')[0]
-        print(checkout.get_attribute('href'))
-        web.get(checkout.get_attribute('href'))
-        time.sleep(random.randrange(1, 5))'''
-
-
-
-        '''for divs in cart_div:
-            if 'submit' in divs.get_attribute('type') or 'cart' in divs.get_attribute('value').lower():
-                cart = divs
-                #print(cart.accessible_name)
-                break
-        print(cart.aria_role)
-        if cart.aria_role == 'button':
-            cart.click()
-        elif cart.aria_role == 'form':
-            cart.submit()'''
-        #print(button.accessible_name)
-        
-        '''time.sleep(random.randrange(1, 5))
-        checkout_url = web.find_element(By.TAG_NAME,'a').get_attribute('href')
-        web.get(checkout_url)
+        search_input.find_element(By.TAG_NAME, 'button').click()
         time.sleep(random.randrange(1, 10))'''
 
-
+        links = web.find_elements(By.TAG_NAME, 'a')
+        j = 0
+        for link in links:
+            if j < 11 and ('product' in link.get_attribute('class').lower() or 'product-link' in link.get_attribute('class').lower()):
+                if book_websites[i] not in product_links:
+                    product_links[book_websites[i]] = []
+                if link.get_attribute('href') not in product_links[book_websites[i]]:
+                    product_links[book_websites[i]].append(link.get_attribute('href'))
+                    j += 1
+                #TODO later create a dictionary for each product link with classifications(keywords description, color, type) as key and product details as value 
+                
+        print(product_links)
+        
+    '''for key in product_links:
+        web.get(product_links[key])
+        time.sleep(random.randrange(1, 10))
+        
+        add_to_cart = web.find_element(By.XPATH, '/html/body/main/div[2]/div[2]/section/div[2]/div/div[3]/div[2]/div[2]/ul[1]/li[1]/div[2]/div/div/form/input[5]')
+        add_to_cart.submit()
+        time.sleep(10)
+        checkout = web.find_element(By.XPATH, '/html/body/div[32]/div/div/div[2]/div[3]/div/div[5]/div[1]/a')
+        web.get(checkout)
+        time.sleep(9)'''
 
         
-
-
-
-        
-        
-
-
    
-    
-
-    
-  
     '''site = sys.argv[1]
 
     links = get_links(site)
