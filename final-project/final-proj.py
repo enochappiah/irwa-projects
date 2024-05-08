@@ -21,7 +21,7 @@ extractlog = logging.getLogger('extracted')
 
     
 
-def parse_links(root, html):
+def parse_links(links, html):
     soup = BeautifulSoup(html, 'html.parser')
     for link in soup.find_all('a'):
         href = link.get('href')
@@ -30,7 +30,12 @@ def parse_links(root, html):
             if not text:
                 text = ''
             text = re.sub(r'\s+', ' ', text).strip()
-            yield (parse.urljoin(root, link.get('href')), text)
+            yield (parse.urljoin(links, link.get('href')), text)
+
+def parse_website_for_price(url):
+    soup = BeautifulSoup(request.urlopen(url).read(), 'html.parser')
+    price = soup.find('span', {'class': 'price'}).text
+    return price
 
 def get_links(url):
     res = request.urlopen(url)
@@ -56,21 +61,21 @@ def get_nonlocal_links(url):
     return filtered
 
 
-def crawl(root, within_domain, wanted_content):
-    '''Crawl the url specified by `root`.
+def crawl(links, within_domain, wanted_content):
+    '''Crawl the url specified by `links`.
     `wanted_content` is a list of content types to crawl
-    `within_domain` specifies whether the crawler should limit itself to the domain of `root`
+    `within_domain` specifies whether the crawler should limit itself to the domain of `links`
     '''
 
     queue = Queue()
-    queue.put(root)
+    queue.put(links)
 
 
     visited = set()
     extracted = []
 
     #grab the domain of the url
-    domain_name = urlparse(root).netloc
+    domain_name = urlparse(links).netloc
     i = 0
     
     while not queue.empty() and i < 20:
@@ -87,14 +92,14 @@ def crawl(root, within_domain, wanted_content):
             continue
 
         content_type = req.headers['Content-Type']
-        if wanted_content and url != root and content_type not in wanted_content:
+        if wanted_content and url != links and content_type not in wanted_content:
             continue
         
 
         for link, title in parse_links(url):    
             if link in visited: 
                 continue   
-            if within_domain and url != root and parse.urlparse(url).netloc != domain_name: #dont visit urls outside of domain if within_domain is True
+            if within_domain and url != links and parse.urlparse(url).netloc != domain_name: #dont visit urls outside of domain if within_domain is True
                 continue
             for ex in extract_information(url, html): # Is extracted supposed to follow within_domain restriction? YES If SO, uncomment the previous if statement
                 if ex in extracted:
@@ -105,9 +110,9 @@ def crawl(root, within_domain, wanted_content):
             
             queue.put(link)
 
-        if url != root and check_self_reference(url, root): #dont visit self referencing urls #TODO lookup hostname lookup urlparse
+        if url != links and check_self_reference(url, links): #dont visit self referencing urls #TODO lookup hostname lookup urlparse
             continue
-        if within_domain and url != root and parse.urlparse(url).netloc != domain_name: #dont visit urls outside of domain if within_domain is True
+        if within_domain and url != links and parse.urlparse(url).netloc != domain_name: #dont visit urls outside of domain if within_domain is True
             continue
         else:
             visited.add(url) #If this comes before exception, it will be added to visited even if exception is raised
@@ -116,23 +121,69 @@ def crawl(root, within_domain, wanted_content):
 
     return visited, extracted
 
-def check_self_reference(url, root):
-    root_domain = urlparse(root).netloc
+def crawl_website(links:list, within_domain, wanted_content):
+    '''Crawl the url specified by `links`.
+    `wanted_content` is a list of content types to crawl
+    `within_domain` specifies whether the crawler should limit itself to the domain of `links`
+    '''
+
+    queue = Queue()
+    for link in links:
+        queue.put(link)
+
+    visited = set()
+    extracted = []
+
+    #grab the domain of the url
+    #domain_name = urlparse(links[0]).netloc
+    i = 0
+    
+    while not queue.empty() and i < 10:
+        url = queue.get()
+        i += 1
+        #skip urls that are visited
+        if url in visited:
+            continue 
+        try:
+            req = request.urlopen(url)
+            html = req.read()
+        except Exception as e:
+            #print(e, url)
+            continue
+
+        content_type = req.headers['Content-Type']
+        '''if wanted_content and content_type not in wanted_content:
+            continue'''
+        
+        '''for ex in extract_price(url, html): # Is extracted supposed to follow within_domain restriction? YES If SO, uncomment the previous if statement
+            if ex in extracted:
+                continue 
+            extracted.append(ex)
+            extractlog.debug(ex)'''  
+        
+        visited.add(url)
+        visitlog.debug(url)
+
+    return visited, extracted
+
+
+def check_self_reference(url, links):
+    links_domain = urlparse(links).netloc
     url_domain = urlparse(url).netloc
 
-    root_path = urlparse(root).path
+    links_path = urlparse(links).path
     url_path = urlparse(url).path
     
     url_fragment = urlparse(url).fragment
 
-    if (root_domain == url_domain and root_path == url_path) and url_fragment:
+    if (links_domain == url_domain and links_path == url_path) and url_fragment:
         return True
-    if (root_path == url_path) and url_fragment:
+    if (links_path == url_path) and url_fragment:
         return True
-    if (root_domain == url_domain and root_path == url_path):
+    if (links_domain == url_domain and links_path == url_path):
         return True
     
-    if (root_path == url_path):
+    if (links_path == url_path):
         return True
     
     return False
@@ -158,6 +209,19 @@ def extract_information(address, html):
     for match in re.findall(r'(\b[A-Za-z]+(?: [A-Za-z]+)?),?\s+([A-Za-z]{2}|Alabama|Alaska|Arizona|Arkansas|California|Colorado|Connecticut|Delaware|Florida|Georgia|Hawaii|Idaho|Illinois|Indiana|Iowa|Kansas|Kentucky|Louisiana|Maine|Maryland|Massachusetts|Michigan|Minnesota|Mississippi|Missouri|Montana|Nebraska|Nevada|New Hampshire|New Jersey|New Mexico|New York|North Carolina|North Dakota|Ohio|Oklahoma|Oregon|Pennsylvania|Rhode Island|South Carolina|South Dakota|Tennessee|Texas|Utah|Vermont|Virginia|Washington|West Virginia|Wisconsin|Wyoming)\s+([1-9]\d{4})(?:-\d{4})?',
                              str(html)): # #r'[a-zA-Z]+, [a-zA-Z]+ ((?!(0))[0-9]{5})'
         results.append((address, 'ADDRESS', match))
+
+    return results
+
+def extract_price(address, html):
+    '''Extract price information from html, returning a list of (url, category, content) pairs,
+    where category is one of PRICE'''
+
+    
+
+    results = []
+    #extracting price and appending them to results
+    for match in re.findall(r'\$\d+\.\d+', str(html)):
+        results.append((address, 'PRICE', match))
 
     return results
 
@@ -226,9 +290,8 @@ def main():
                     product_links[book_websites[i]].append(link.get_attribute('href'))
                     j += 1
                 #TODO later create a dictionary for each product link with classifications(keywords description, color, type) as key and product details as value 
-                
-        print(product_links)
-        
+                book_matches[book_websites[i]] = extract_price(link.get_attribute('href'), web.page_source)
+    print(book_matches)     
     '''for key in product_links:
         web.get(product_links[key])
         time.sleep(random.randrange(1, 10))
@@ -239,8 +302,21 @@ def main():
         checkout = web.find_element(By.XPATH, '/html/body/div[32]/div/div/div[2]/div[3]/div/div[5]/div[1]/a')
         web.get(checkout)
         time.sleep(9)'''
+    results = []
+    visited = []
+    for website in product_links:
 
-        
+        for link in product_links[website]:
+            
+            print("LINK:", link)
+            time.sleep(random.randrange(1, 10))
+            web.get(link)
+            visited = crawl_website(product_links[website], True, ['text/html'])
+            #print(web.get(link).page_source)
+            #results = extract_price(link, web.page_source)
+            
+            
+    writelines('extracted.txt', results) 
    
     '''site = sys.argv[1]
 
