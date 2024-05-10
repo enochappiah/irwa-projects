@@ -322,7 +322,7 @@ def main():
         search_input.submit()
         time.sleep(10)
         results[link] = parse_website_for_price(web)
-        print(results)
+        
         for products_key in results[link]:
             web.get(results[link][products_key]['Link'])
             time.sleep(random.randrange(5, 15))
@@ -340,7 +340,7 @@ def main():
             
             results[link][products_key]['Description'] = description_text
             
-
+        print(results)
     
    
     '''site = sys.argv[1]
