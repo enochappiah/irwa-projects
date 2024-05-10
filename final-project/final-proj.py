@@ -46,7 +46,7 @@ def parse_website_for_price(web):
         print(price)'''
     product_grid = web.find_element(By.XPATH, vendorDict.bobs_dict['product-grid'])
     product_cards = product_grid.find_elements(By.TAG_NAME, vendorDict.bobs_dict['product-cards-tag'])
-    print(len(product_cards))
+    
     
     for product in product_cards:
         
@@ -83,7 +83,7 @@ def parse_website_for_price(web):
             
             #print("Product link: ", product.find_element(By.XPATH, f'//*[@id="{product_id}"]/div/bobs-generic-link/div/a').get_attribute('href')) # product.find_element(By.CLASS_NAME, vendorDict.bobs_dict['product-link-class']).get_attribute('href')
             product_link = product.find_element(By.XPATH, f'//*[@id="{product_id}"]/div/bobs-generic-link/div/a').get_attribute('href')
-            price_dict[product_name] = {'Price': product_price, 'Link': product_link}
+            price_dict[product_name] = {'Price': product_price, 'Link': product_link, 'Description': ''}
             #print(price_dict)
         except Exception as e:
             break
@@ -323,8 +323,25 @@ def main():
         time.sleep(10)
         results[link] = parse_website_for_price(web)
         print(results)
+        for products_key in results[link]:
+            web.get(results[link][products_key]['Link'])
+            time.sleep(random.randrange(5, 15))
 
+            #description_div = web.find_element(By.CLASS_NAME, 'description-summary bobs-text-small')
+            description_div = web.find_element(By.XPATH, '//*[@id="bobs-product-details-tabs"]/bobs-tabs/bobs-tab[1]/div/bobs-product-details-tab-content/div[1]/div[1]/span[2]')
+            if description_div.text == '':
+                description_text = description_div.find_element(By.TAG_NAME, 'p').text
+            else:
+                description_text = description_div.text
+         
+                
+            #description_div = web.find_element(By.CLASS_NAME, 'description-summary bobs-text-small')
+            #description_text = description_div.find_element(By.TAG_NAME, 'p').text
+            
+            results[link][products_key]['Description'] = description_text
+            
 
+    
    
     '''site = sys.argv[1]
 
