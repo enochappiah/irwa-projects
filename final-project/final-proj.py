@@ -13,7 +13,10 @@ from selenium import webdriver as wd
 from selenium.webdriver.common.by import By
 import selenium.webdriver.common.alert as Alert
 import time
-import random #random.randrange(5.0, 15.0)
+import random #random.randrange(5, 15)
+import vendorDict
+import html5lib
+
 
 logging.basicConfig(level=logging.DEBUG, filename='output.log', filemode='w')
 visitlog = logging.getLogger('visited')
@@ -32,10 +35,70 @@ def parse_links(links, html):
             text = re.sub(r'\s+', ' ', text).strip()
             yield (parse.urljoin(links, link.get('href')), text)
 
-def parse_website_for_price(url):
-    soup = BeautifulSoup(request.urlopen(url).read(), 'html.parser')
-    price = soup.find('span', {'class': 'price'}).text
-    return price
+def parse_website_for_price(web):
+    price_dict = {}
+    '''soup = BeautifulSoup(request.urlopen(url).read(), 'html.parser') #html.parser
+    print(soup.prettify())
+    for links in soup.find_all(vendorDict.bobs_dict['price-container-tag'], limit=10):
+        print(links)
+        price = links.find(vendorDict.bobs_dict['price-container_tag']).text
+        price_dict[links] = links.find('_ngcontent-serverapp-c411').text                           #links.find('span', class_='price').text
+        print(price)'''
+    product_grid = web.find_element(By.XPATH, vendorDict.bobs_dict['product-grid'])
+    product_cards = product_grid.find_elements(By.TAG_NAME, vendorDict.bobs_dict['product-cards-tag'])
+    print(len(product_cards))
+    
+    for product in product_cards:
+        
+        product_id = product.find_element(By.CLASS_NAME,'bobs-product-card-dynamic-load').get_attribute('id')
+
+        try:
+            #print("Product Name: ", product.find_element(By.XPATH, f'//*[@id="{product_id}"]/div/bobs-generic-link/div/a/div').text)
+            product_name = product.find_element(By.XPATH, f'//*[@id="{product_id}"]/div/bobs-generic-link/div/a/div').text
+            price_dict[product_name] = []
+            
+
+            #print("Product Price: ", product.find_element(By.XPATH, f'//*[@id="{product_id}"]/div/div[4]/div[2]/div').text)
+            product_price = product.find_element(By.XPATH, f'//*[@id="{product_id}"]/div/div[4]/div[2]/div').text
+            #remove words from price
+            product_price = re.sub(r'[a-zA-Z]+', '', product_price)
+            #remove whitespace from price
+            product_price = re.sub(r'\s+', '', product_price)
+            #remove commas from price
+            product_price = re.sub(r',', '', product_price)
+            #remove dollar sign from price
+            product_price = re.sub(r'\$', '', product_price)
+            #convert price to float
+            product_price = float(product_price)
+            #trim price to 2 decimal places
+            product_price = round(product_price, 2)
+            price_dict[product_name].append({'Price': product_price})
+
+            
+            #print("Product link: ", product.find_element(By.XPATH, f'//*[@id="{product_id}"]/div/bobs-generic-link/div/a').get_attribute('href')) # product.find_element(By.CLASS_NAME, vendorDict.bobs_dict['product-link-class']).get_attribute('href')
+            product_link = product.find_element(By.XPATH, f'//*[@id="{product_id}"]/div/bobs-generic-link/div/a').get_attribute('href')
+            price_dict[product_name].append({'Link': product_link})
+            #print(price_dict)
+        except Exception as e:
+            break
+
+
+    '''for i in range(1, 11):
+        
+        product_id = product_cards[i].find_element(By.CLASS_NAME,'bobs-product-card-dynamic-load').get_attribute('id')
+
+        try:
+            print("Product Name: ", product_cards[i].find_element(By.XPATH, f'//*[@id="{product_id}"]/div/bobs-generic-link/div/a/div').text)
+            print("Product Price: ", product_cards[i].find_element(By.XPATH, f'//*[@id="{product_id}"]/div/div[4]/div[2]/div').text)
+            print("Product link: ", product_cards[i].find_element(By.XPATH, f'//*[@id="{product_id}"]/div/bobs-generic-link/div/a').get_attribute('href')) # product.find_element(By.CLASS_NAME, vendorDict.bobs_dict['product-link-class']).get_attribute('href')
+
+        except Exception as e:
+            continue'''
+        
+      
+    
+       
+    return price_dict
 
 def get_links(url):
     res = request.urlopen(url)
@@ -189,9 +252,6 @@ def check_self_reference(url, links):
     return False
 
 
-    
-
-
 def extract_information(address, html):
     '''Extract contact information from html, returning a list of (url, category, content) pairs,
     where category is one of PHONE, ADDRESS, EMAIL'''
@@ -246,77 +306,17 @@ def main():
     book_websites = get_seller_info()
     book_matches = {}
     product_links = {}
-    for i in range(len(book_websites)):
-        
-        web.get(book_websites[i])
-        time.sleep(random.randrange(1, 5))
-        
-        # wait for an alert to appear and then dismiss it
-        try:
-            alert = web.switch_to.alert
-            alert.dismiss()
-        except:
-            pass
-        
-        # get all forms on the page and iterate through the forms to find a form with the class name that contains 'search'
-        input_divs = web.find_elements(By.TAG_NAME, 'input')
-        for input in input_divs:
-            if 'search' in input.get_attribute('class').lower() or 'search' in input.get_attribute('placeholder').lower():
-                search_input = input
-                break
 
+    for link in book_websites:
+        web.get(link)
+        time.sleep(random.randrange(5, 15))
+        search_input = web.find_element(By.XPATH, vendorDict.bobs_dict['search'])
         search_input.send_keys('memory foam mattress')
         time.sleep(random.randrange(1, 10))
         search_input.submit()
         time.sleep(10)
-        '''forms = web.find_elements(By.TAG_NAME, 'input')
-        for form in forms:
-            if 'search' in form.get_attribute('class'):
-                search_input = form
-                break
-        
-        search_input.find_element(By.TAG_NAME, 'input').send_keys('memory foam mattress')
-        time.sleep(random.randrange(1, 10))
-        search_input.find_element(By.TAG_NAME, 'button').click()
-        time.sleep(random.randrange(1, 10))'''
-
-        links = web.find_elements(By.TAG_NAME, 'a')
-        j = 0
-        for link in links:
-            if j < 11 and ('product' in link.get_attribute('class').lower() or 'product-link' in link.get_attribute('class').lower()):
-                if book_websites[i] not in product_links:
-                    product_links[book_websites[i]] = []
-                if link.get_attribute('href') not in product_links[book_websites[i]]:
-                    product_links[book_websites[i]].append(link.get_attribute('href'))
-                    j += 1
-                #TODO later create a dictionary for each product link with classifications(keywords description, color, type) as key and product details as value 
-                book_matches[book_websites[i]] = extract_price(link.get_attribute('href'), web.page_source)
-    print(book_matches)     
-    '''for key in product_links:
-        web.get(product_links[key])
-        time.sleep(random.randrange(1, 10))
-        
-        add_to_cart = web.find_element(By.XPATH, '/html/body/main/div[2]/div[2]/section/div[2]/div/div[3]/div[2]/div[2]/ul[1]/li[1]/div[2]/div/div/form/input[5]')
-        add_to_cart.submit()
-        time.sleep(10)
-        checkout = web.find_element(By.XPATH, '/html/body/div[32]/div/div/div[2]/div[3]/div/div[5]/div[1]/a')
-        web.get(checkout)
-        time.sleep(9)'''
-    results = []
-    visited = []
-    for website in product_links:
-
-        for link in product_links[website]:
-            
-            print("LINK:", link)
-            time.sleep(random.randrange(1, 10))
-            web.get(link)
-            visited = crawl_website(product_links[website], True, ['text/html'])
-            #print(web.get(link).page_source)
-            #results = extract_price(link, web.page_source)
-            
-            
-    writelines('extracted.txt', results) 
+        results = parse_website_for_price(web)
+        print(results)
    
     '''site = sys.argv[1]
 
