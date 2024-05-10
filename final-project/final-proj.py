@@ -55,29 +55,35 @@ def parse_website_for_price(web):
         try:
             #print("Product Name: ", product.find_element(By.XPATH, f'//*[@id="{product_id}"]/div/bobs-generic-link/div/a/div').text)
             product_name = product.find_element(By.XPATH, f'//*[@id="{product_id}"]/div/bobs-generic-link/div/a/div').text
-            price_dict[product_name] = []
+            #price_dict[product_name] = {}
             
 
             #print("Product Price: ", product.find_element(By.XPATH, f'//*[@id="{product_id}"]/div/div[4]/div[2]/div').text)
             product_price = product.find_element(By.XPATH, f'//*[@id="{product_id}"]/div/div[4]/div[2]/div').text
+            
             #remove words from price
             product_price = re.sub(r'[a-zA-Z]+', '', product_price)
+            
             #remove whitespace from price
             product_price = re.sub(r'\s+', '', product_price)
+            
             #remove commas from price
             product_price = re.sub(r',', '', product_price)
+            
             #remove dollar sign from price
             product_price = re.sub(r'\$', '', product_price)
+            
             #convert price to float
             product_price = float(product_price)
+            
             #trim price to 2 decimal places
             product_price = round(product_price, 2)
-            price_dict[product_name].append({'Price': product_price})
+            #price_dict[product_name] = {'Price': product_price}
 
             
             #print("Product link: ", product.find_element(By.XPATH, f'//*[@id="{product_id}"]/div/bobs-generic-link/div/a').get_attribute('href')) # product.find_element(By.CLASS_NAME, vendorDict.bobs_dict['product-link-class']).get_attribute('href')
             product_link = product.find_element(By.XPATH, f'//*[@id="{product_id}"]/div/bobs-generic-link/div/a').get_attribute('href')
-            price_dict[product_name].append({'Link': product_link})
+            price_dict[product_name] = {'Price': product_price, 'Link': product_link}
             #print(price_dict)
         except Exception as e:
             break
@@ -303,11 +309,11 @@ def writelines(filename, data):
 def main():
     web = wd.Chrome()
     web.implicitly_wait(10)
-    book_websites = get_seller_info()
-    book_matches = {}
-    product_links = {}
+    websites = get_seller_info()
+    results = {}
+    
 
-    for link in book_websites:
+    for link in websites:
         web.get(link)
         time.sleep(random.randrange(5, 15))
         search_input = web.find_element(By.XPATH, vendorDict.bobs_dict['search'])
@@ -315,8 +321,10 @@ def main():
         time.sleep(random.randrange(1, 10))
         search_input.submit()
         time.sleep(10)
-        results = parse_website_for_price(web)
+        results[link] = parse_website_for_price(web)
         print(results)
+
+
    
     '''site = sys.argv[1]
 
