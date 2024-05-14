@@ -490,6 +490,13 @@ def gather_descriptions(website_dict):
             descrip_arr.append(website_dict[website][product]['Description'])
     return descrip_arr
 
+def gather_product_names(website_dict):
+    product_arr = []
+    for website in website_dict:
+        for product in website_dict[website]:
+            product_arr.append(website_dict[website][product])
+    return product_arr
+
 def expand_query(query, description_list):
     from nltk.corpus import stopwords
     stopwords = set(stopwords.words('english'))
@@ -551,6 +558,7 @@ def main():
         
     website_dict = preprocess_descriptions(website_dict)  
     train_descriptions = gather_descriptions(website_dict)
+    train_product_names = gather_product_names(website_dict)
     
     #Query expansion
     expanded_query = expand_query(query, train_descriptions)
@@ -577,7 +585,7 @@ def main():
 
     #TODO CALL TF-IDF functions
     X_train, X_test = compute_tfidf(train_descriptions, gather_descriptions(website_dict))
-    y_train, y_test = compute_tfidf(train_descriptions, gather_descriptions(website_dict)) #TODO: change to actual target values
+    y_train, y_test = compute_tfidf(train_product_names, gather_product_names(website_dict)) #TODO: change to actual target values (product names)
     '''X_train = newsgroups_train.data
     X_test = newsgroups_test.data
     y_train = newsgroups_train.target
@@ -587,7 +595,7 @@ def main():
     #Roccio Algorithm
     text_clf = Pipeline([('vect', CountVectorizer()),
                         ('tfidf', TfidfTransformer()),
-                        ('clf', KNeighborsClassifier()),
+                        ('knn', NearestCentroid()),
                         ])
 
     text_clf.fit(X_train, y_train)
