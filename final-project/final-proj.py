@@ -26,6 +26,8 @@ from sklearn.pipeline import Pipeline
 from sklearn import metrics
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
+from sklearn.metrics.pairwise import cosine_similarity
+
 
 
 logging.basicConfig(level=logging.DEBUG, filename='output.log', filemode='w')
@@ -555,9 +557,9 @@ def main():
     expanded_query = ' '.join(list(set(expanded_query.split())))
     print(expanded_query)  
 
-
+    #tfidf on bed bath and beyond
     #TODO GET TEST DATA (BED BATH AND BEYOND)
-    '''test_website = "https://www.bedbathandbeyond.com/"
+    test_website = "https://www.bedbathandbeyond.com/"
     website_dict[test_website] = parse_vendor(test_website, web, query)
     for product in website_dict[test_website]:
         web.get(website_dict[test_website][product]['Link'])
@@ -574,24 +576,39 @@ def main():
 
 
     #TODO CALL TF-IDF functions
-    X_train, X_test = compute_tfidf(train_descriptions, gather_descriptions(website_dict))'''
+    X_train, X_test = compute_tfidf(train_descriptions, gather_descriptions(website_dict))
+    y_train, y_test = compute_tfidf(train_descriptions, gather_descriptions(website_dict)) #TODO: change to actual target values
     '''X_train = newsgroups_train.data
-X_test = newsgroups_test.data
-y_train = newsgroups_train.target
-y_test = newsgroups_test.target
-
-text_clf = Pipeline([('vect', CountVectorizer()),
-                     ('tfidf', TfidfTransformer()),
-                     ('clf', KNeighborsClassifier()),
-                     ])
-
-text_clf.fit(X_train, y_train)
-
-predicted = text_clf.predict(X_test)
-
-print(metrics.classification_report(y_test, predicted))'''    
+    X_test = newsgroups_test.data
+    y_train = newsgroups_train.target
+    y_test = newsgroups_test.target'''
 
 
+    #Roccio Algorithm
+    text_clf = Pipeline([('vect', CountVectorizer()),
+                        ('tfidf', TfidfTransformer()),
+                        ('clf', KNeighborsClassifier()),
+                        ])
+
+    text_clf.fit(X_train, y_train)
+
+    predicted = text_clf.predict(X_test)
+
+    print(metrics.classification_report(y_test, predicted))
+    #compute centroid vectors
+    centroid_vectors = {}
+    for c in np.unique(y_train):
+        X_v = X_train[y_train == c]
+        centroid_vectors[c] = np.mean(X_v, axis=0)
+    
+    #cosine similarity between test docs (words) and centroid vectors
+    cos_scores = np.zeros((len(X_test), len(np.unique(y_train))))
+    for i, x in enumerate(X_test):
+        for j, (c, centroid_vector) in enumerate(centroid_vectors.items()):
+            cos_scores[i, j] = cosine_similarity(x.reshape(1, -1), centroid_vector.reshape(1, -1))
+
+    y_pred = np.argmax(cos_scores, axis=1)
+    print(metrics.classification_report(y_test, y_pred))
     doc_vectors = []
     query_vectors = []
 
