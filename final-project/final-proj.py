@@ -168,42 +168,60 @@ def parse_bbb_for_products(web, website):
 
     product_dict = {}
     product_grid = web.find_element(By.XPATH, vendorDict.vendors_dict[website]['product-grid'])
-    product_cards = product_grid.find_elements(By.TAG_NAME, vendorDict.vendors_dict[website]['product-cards-tag'])
     
+    product_cards = product_grid.find_elements(By.CLASS_NAME, vendorDict.vendors_dict[website]['product-cards-class'])
+
+
+    i = 0
+    product_links = []
     for product in product_cards:
-        
-        product_id = product.find_element(By.CLASS_NAME,vendorDict.vendors_dict[website]['product-id-class']).get_attribute('id')
-
-        try:
-
-            product_name = product.find_element(By.XPATH, f'//*[@id="{product_id}"]/div/bobs-generic-link/div/a/div').text
-      
-            product_price = product.find_element(By.XPATH, f'//*[@id="{product_id}"]/div/div[4]/div[2]/div').text
-
-            product_link = product.find_element(By.XPATH, f'//*[@id="{product_id}"]/div/bobs-generic-link/div/a').get_attribute('href')
-            
-            #remove words from price
-            product_price = re.sub(r'[a-zA-Z]+', '', product_price)
-            
-            #remove whitespace from price
-            product_price = re.sub(r'\s+', '', product_price)
-            
-            #remove commas from price
-            product_price = re.sub(r',', '', product_price)
-            
-            #remove dollar sign from price
-            product_price = re.sub(r'\$', '', product_price)
-            
-            #convert price to float
-            product_price = float(product_price)
-            
-            #trim price to 2 decimal places
-            product_price = round(product_price, 2)
- 
-            product_dict[product_name] = {'Price': product_price, 'Link': product_link, 'Description': ''}
-
-        except Exception as e:
+        if i == 5:
             break
+        
+        #product_id = product.find_element(By.CLASS_NAME,vendorDict.vendors_dict[website]['product-id-class']).get_attribute('id')
+
+        #try:
+
+        product_link_tag = product.find_element(By.CLASS_NAME, 'productTile_link__zHGHe')
+        product_link = product_link_tag.get_attribute('href')
+        product_links.append(product_link) 
+        
+        print(product_link)
+        i += 1
+     
+            
+            #product_name = product.find_element(By.TAG_NAME, 'p').text
+            
+
+        
+        
+            #product_name = outer_detail_div.find_element(By.TAG_NAME, 'p').text
+        '''product_name = web.find_element(By.XPATH, '//*[@id="page-wrap"]/main/div/div/div[2]/section[1]/h1').text
+        product_price = web.find_element(By.XPATH, '//*[@id="page-wrap"]/main/div/div/div[2]/section[2]/div[1]/div[2]/div[3]').text
+        '''
+        
+
+        #except Exception as e:
+            #break
+        
+    for link in product_links:
+        web.get(link)
+        time.sleep(5)
+        product_name = web.find_element(By.XPATH, '//*[@id="page-wrap"]/main/div/div/div[2]/section[1]/h1').text
+        print(product_name)
+        product_price = web.find_element(By.XPATH, '//*[@id="page-wrap"]/main/div/div/div[2]/section[2]/div[1]/div[2]/div[3]').text
+        print(product_price)
+        
+
+        product_price = re.sub(r'[a-zA-Z]+', '', product_price)
+        product_price = re.sub(r'\s+', '', product_price)
+        product_price = re.sub(r'\$', '', product_price)
+        product_price = re.sub(r',', '', product_price)
+        product_price = float(product_price)
+        product_dict[product_name] = {'Price': product_price, 'Link': link, 'Description': ''}
+    
+    
+    print(product_dict)
        
     return product_dict
 
@@ -576,7 +594,7 @@ def main():
     expanded_query = ' '.join(list(set(expanded_query.split())))
     print(expanded_query)  
 
-    #tfidf on bed bath and beyond
+    '''#tfidf on bed bath and beyond
     #TODO GET TEST DATA (BED BATH AND BEYOND)
     test_website = "https://www.bedbathandbeyond.com/"
     website_dict[test_website] = parse_vendor(test_website, web, query)
@@ -590,7 +608,7 @@ def main():
         else:
             description_text = description_div.text
     
-        website_dict[test_website][product]['Description'] = description_text
+        website_dict[test_website][product]['Description'] = description_text'''
     
 
 
@@ -606,7 +624,7 @@ def main():
     #Roccio Algorithm
     text_clf = Pipeline([('vect', CountVectorizer()),
                         ('tfidf', TfidfTransformer()),
-                        ('knn', NearestCentroid()),
+                        ('clf', NearestCentroid()),
                         ])
 
     text_clf.fit(X_train, y_train)
@@ -637,6 +655,10 @@ def main():
     #TODO EVALUATE THE MODEL
     #TODO PRINT RESULTS
 
+    '''
+    #TODO MUST READ
+    our x_train will be the product descriptions from the first two websites, our y_train will be the product name from those websites
+    our x_test will be the product descriptions from the third website, our y_test will be the product name from the third website'''
 
     
 

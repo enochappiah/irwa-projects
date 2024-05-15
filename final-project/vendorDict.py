@@ -31,8 +31,20 @@ vendors_dict = {
         "product-link-class": "",
         "product-link-anchor": '',
         "description-div": '', 
-    }}
+    },
+    
+    "https://www.bedbathandbeyond.com/":
+    {
+        "search": '//*[@id="ostk-search-combobox"]/input',
+        "product-grid": '//*[@id="products"]',
+        "product-cards-class": 'productTile_productTile__fCG1W',
+        "product-link-class": 'productTile_link__zHGHe',
+        "product-details-class": 'tileContent productTile_content__Zab3W', 
+        "upper-price-container-class": 'priceContainer price_container__jbAh_',
+        "inner-price-container-class": 'price_currentPriceContainer__aI9hY',
+        "price-element-class": 'currentPrice price_price__RsJly price_sale__nO5AK',
+        "product-name-class": 'title_wrapper__NBeDj',
+        'description-div': '//*[@id="description-height"]/div[1]/div[2]/p[1]'
 
-
-
-
+    }
+    }
