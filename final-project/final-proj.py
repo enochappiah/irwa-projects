@@ -29,6 +29,8 @@ from sklearn import metrics
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.metrics.pairwise import cosine_similarity
+from itertools import chain
+
 
 
 
@@ -514,7 +516,7 @@ def gather_descriptions(website_dict):
     for website in website_dict:
         for product in website_dict[website]:
             descrip_arr.append(website_dict[website][product]['Description'])
-    return descrip_arr
+    return list(chain.from_iterable(descrip_arr))
 
 def gather_product_names(website_dict):
     product_arr = []
@@ -594,7 +596,7 @@ def main():
     expanded_query = ' '.join(list(set(expanded_query.split())))
     print(expanded_query)  
 
-    '''#tfidf on bed bath and beyond
+    #tfidf on bed bath and beyond
     #TODO GET TEST DATA (BED BATH AND BEYOND)
     test_website = "https://www.bedbathandbeyond.com/"
     website_dict[test_website] = parse_vendor(test_website, web, query)
@@ -608,7 +610,7 @@ def main():
         else:
             description_text = description_div.text
     
-        website_dict[test_website][product]['Description'] = description_text'''
+        website_dict[test_website][product]['Description'] = description_text
     
 
 
@@ -619,7 +621,8 @@ def main():
     X_test = newsgroups_test.data
     y_train = newsgroups_train.target
     y_test = newsgroups_test.target'''
-
+    print(type(X_train), type(X_test), type(y_train), type(y_test))
+    
 
     #Roccio Algorithm
     text_clf = Pipeline([('vect', CountVectorizer()),
