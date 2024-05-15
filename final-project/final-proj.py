@@ -15,6 +15,8 @@ import selenium.webdriver.common.alert as Alert
 import time
 import random #random.randrange(5, 15)
 import vendorDict
+import nltk
+from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem.snowball import SnowballStemmer
 import numpy as np
@@ -441,7 +443,10 @@ def stem_words(tokens):
     return [stemmer.stem(word) for word in tokens]
 
 def stop_words(tokens):
+    import nltk
     from nltk.corpus import stopwords
+    nltk.download('stopwords')
+
     stopwords = set(stopwords.words('english'))
     return [word for word in tokens if word not in stopwords]
 
@@ -453,7 +458,10 @@ def pre_process(tokens):
     return tokens
 
 def preprocess_descriptions(website_dict): #PARAM: website_dict[website]
+    import nltk
     from nltk.corpus import stopwords
+    nltk.download('stopwords')
+
     stopwords = set(stopwords.words('english'))
     stemmer = SnowballStemmer('english')  
     for website in website_dict:
@@ -493,12 +501,15 @@ def gather_descriptions(website_dict):
 def gather_product_names(website_dict):
     product_arr = []
     for website in website_dict:
-        for product in website_dict[website]:
-            product_arr.append(website_dict[website][product])
+        for product in website_dict[website].keys():
+            product_arr.append(product)
     return product_arr
 
 def expand_query(query, description_list):
+    import nltk
     from nltk.corpus import stopwords
+    nltk.download('stopwords')
+
     stopwords = set(stopwords.words('english'))
     stemmer = SnowballStemmer('english')
     model = Word2Vec(
@@ -559,7 +570,7 @@ def main():
     website_dict = preprocess_descriptions(website_dict)  
     train_descriptions = gather_descriptions(website_dict)
     train_product_names = gather_product_names(website_dict)
-    
+
     #Query expansion
     expanded_query = expand_query(query, train_descriptions)
     expanded_query = ' '.join(list(set(expanded_query.split())))
@@ -635,6 +646,8 @@ def main():
     '''for 
     preprocess_description(website_dict[])'''
     #TODO START TRAINING MODEL
+
+    
     
     
 
