@@ -8,30 +8,6 @@ vendors_dict = {
         "description-div": '//*[@id="bobs-product-details-tabs"]/bobs-tabs/bobs-tab[1]/div/bobs-product-details-tab-content/div[1]/div[1]/span[2]',
 
     },
-    "https://www.ashleyfurniture.com/": 
-    {
-        "search": '//*[@id="search-container"]/wc-search ', #//*[@id="search-form"]/input
-        "product-grid": '//*[@id="search-result-items"]',
-        "product-cards-tag": "product-tile",
-        "product-name-attribute": "data-cnstrc-item-name",
-        "product-price-attribute": "data-cnstrc-item-price",
-        "product-link-class": "name-link",
-        "product-link-anchor": '//*[@id="174b30c07ece67b84f916beead"]/div[3]/div[1]/a',
-        "description-div": '//*[@id="pdpMain"]/div[4]/div/div[1]/div[2]/div/p[2]', 
-                 
-    },
-    
-    "https://www.valuecityfurniture.com/": 
-    {
-        "search": '//*[@id="ts-searchInput"]', 
-        "product-grid": '//*[@id="page-container"]/bpc-app/div[1]/bpc-search-base/bpc-search-page-base/section[2]',
-        "product-cards-tag": "product-card ng-star-inserted",
-        "product-name-attribute": "",
-        "product-price-class": "price-label",
-        "product-link-class": "",
-        "product-link-anchor": '',
-        "description-div": '', 
-    },
     
     "https://www.bedbathandbeyond.com/":
     {
@@ -46,5 +22,15 @@ vendors_dict = {
         "product-name-class": 'title_wrapper__NBeDj',
         'description-div': '//*[@id="description-height"]/div[1]/div[2]/p[1]'
 
+    },
+    "https://www.wayfair.com/":
+    {
+        "search": '//*[@id="textInput-:R79557qja:"]',
+        "product-grid": '//*[@id="searchResults"]',
+        "product-cards-class": "_6o3atz4v _6o3atz5h _6o3atzl drvwgb7 drvwgb8 drvwgbb drvwgbe drvwgbd drvwgbh drvwgbk drvwgb1",
+        "product-name-class": "ProductCardstyles__ProductName-sc-1j5v8b6-1",
+        "product-price-class": "ProductCardstyles__PriceText-sc-1j5v8b6-6",
+        "product-link-class": "ProductCardstyles__ProductCardLink-sc-1j5v8b6-3",
+        "description-div": '//*[@id="CollapsePanel-0"]/div/div/div/div[1]/div/div/div',
     }
     }
