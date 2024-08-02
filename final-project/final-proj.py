@@ -1,19 +1,12 @@
-from collections import defaultdict
 import logging
 import re
 import os
-from bs4 import BeautifulSoup
-from queue import PriorityQueue, Queue
-from urllib import parse, request
-from urllib.parse import urlparse
 from selenium import webdriver as wd
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
 import time
-from typing import Dict
-from numpy.linalg import norm
 import random #random.randrange(5, 15)
 import vendorDict
 from nltk.corpus import stopwords
@@ -21,14 +14,7 @@ from nltk.tokenize import word_tokenize
 from nltk.stem.snowball import SnowballStemmer
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
-from gensim.models import Word2Vec, KeyedVectors
-import gensim.downloader as api
-from sklearn.neighbors import KNeighborsClassifier, NearestCentroid
-from sklearn.naive_bayes import MultinomialNB
-from sklearn.pipeline import Pipeline
-from sklearn import metrics
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.feature_extraction.text import TfidfTransformer
+from gensim.models import Word2Vec
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.preprocessing import LabelEncoder
 import pandas as pd
@@ -137,9 +123,6 @@ def process_product_data_append(website_dict, query):
     df = pd.DataFrame(rows, columns=['Query', 'Website', 'Product Name', 'Link', 'Price', 'Description'], )
     
     return df
-
-
-
 
 
 
@@ -344,8 +327,6 @@ def pre_process_description(description):
     #description = [word for word in description if word.isalpha()]
     return description
 
-
-
     
 def get_seller_info():
     with open('vendors.txt', 'r') as f:
@@ -509,30 +490,32 @@ def get_query_vector(query, tfidf_vectorizer, feature_names):
 
 
 def main():
-    web = wd.Chrome()
-    web.implicitly_wait(10)
+    query = input('Enter a query to search for: ').strip().lower()
     websites = get_seller_info()
     website_dict = {} #dictionary of websites and their product dictionary
-    query = input('Enter a query to search for: ').strip().lower()
-    
-
     if os.path.exists('product_data.txt'):
         df = pd.read_csv('product_data.txt', sep='\t')
         if query not in df['Query'].values:
             #create a new dataframe with the query
             new_dict = {}
+            web = wd.Chrome()
+            web.implicitly_wait(10)
             for website in websites:
                 if website == 'https://www.wayfair.com/': #issue with bot detection
                     break
                 new_dict[website] = parse_vendor(website, web, query)
             new_df = process_product_data_append(new_dict, query)
             df = pd.concat([df, new_df], ignore_index=True)
+            web.quit()
                 
     else:
+        web = wd.Chrome()
+        web.implicitly_wait(10)
         for website in websites:
             if website == 'https://www.wayfair.com/': #issue with bot detection
                 break
             website_dict[website] = parse_vendor(website, web, query)
+        web.quit()
         df = process_product_data(website_dict, query)
         
     df.dropna(inplace=True)
@@ -584,42 +567,10 @@ def main():
             
                 file.write(f"Similarity Score: {result['Similarity Score']:.4f}\n")
                 file.write("\n")
-    '''    else:
-        with open('results.txt', 'w') as file:
-            for i, result in enumerate(formatted_results, 1):
-                file.write(f"Rank {i}:\n")
-                file.write(f"Original Query: {result['Original Query']}\n")
-                file.write(f"Expanded Query: {result['Expanded Query']}\n")
-                file.write(f"Website: {result['Website']}\n")
-                file.write(f"Product Name: {result['Product Name']}\n")
-                file.write(f"Link: {result['Link']}\n")
-                file.write(f"Price: {result['Price']}\n")
-                file.write(f"Description: {result['Description']}\n")
-            
-                file.write(f"Similarity Score: {result['Similarity Score']:.4f}\n")
-                file.write("\n")'''
+
+
 
     
-
-    #TODO now use the tfidf_dict to compare the tfidf values of the product descriptions to the query ---> cosine similarity
-
-
-
-    #Roccio Algorithm
-    #Taken from Github Repo: https://github.com/kk7nc/Text_Classification?tab=readme-ov-file 
-    '''text_clf = Pipeline([('vect', CountVectorizer()),
-                        ('tfidf', TfidfTransformer()),
-                        ('clf', NearestCentroid()),
-                        ])
-
-    text_clf.fit(X_train, y_train)
-
-    predicted = text_clf.predict(X_test)
-
-    print(metrics.classification_report(y_test, predicted, zero_division=0))'''
-
-
-    web.quit()
 
 if __name__ == '__main__':
     main()
