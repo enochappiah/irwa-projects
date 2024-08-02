@@ -18,13 +18,17 @@ from gensim.models import Word2Vec
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.preprocessing import LabelEncoder
 import pandas as pd
-
+import sqlite3 
 
 
 
 logging.basicConfig(level=logging.DEBUG, filename='output.log', filemode='w')
 visitlog = logging.getLogger('visited')
 extractlog = logging.getLogger('extracted')
+
+
+
+
 
 def dataframe_to_nested_dict(df):
     # Initialize an empty dictionary
@@ -143,7 +147,54 @@ def scrape_descriptions(product_dict, web, website):
 
 
 
-def parse_bobs_for_products(web, website):
+'''def parse_bobs_for_products(web, website, cursor):
+
+    product_dict = {}
+    product_grid = web.find_element(By.XPATH, vendorDict.vendors_dict[website]['product-grid'])
+    product_cards = product_grid.find_elements(By.CLASS_NAME, vendorDict.vendors_dict[website]['product-id-class'])
+    time.sleep(2)
+    for product in product_cards:
+        
+        product_id = product.get_attribute('id')
+        ActionChains(web).move_to_element(product).perform()
+        
+        try: 
+            
+            product_name = product.find_element(By.XPATH, f'//*[@id="{product_id}"]/div/bobs-generic-link/div/a/div').text
+
+            product_price = product.find_element(By.XPATH, f'//*[@id="{product_id}"]/div/div[4]/div[2]/div').text
+            
+            product_link = product.find_element(By.XPATH, f'//*[@id="{product_id}"]/div/bobs-generic-link/div/a').get_attribute('href')
+        
+            #remove words from price
+            product_price = re.sub(r'[a-zA-Z]+', '', product_price)
+            
+            #remove whitespace from price
+            product_price = re.sub(r'\s+', '', product_price)
+            
+            #remove commas from price
+            product_price = re.sub(r',', '', product_price)
+            
+            #remove dollar sign from price
+            product_price = re.sub(r'\$', '', product_price)
+            
+            #convert price to float
+            product_price = float(product_price)
+            
+            #trim price to 2 decimal places
+            product_price = round(product_price, 2)
+        
+        except Exception as e:
+            continue
+        
+        cursor.execute('INSERT INTO product_data VALUES (?, ?, ?, ?, ?, ?)', (query, website, product_name, product_link, product_price, ''))
+        product_dict[product_name] = {'Price': product_price, 'Link': product_link, 'Description': ''}
+
+    product_dict = scrape_descriptions(product_dict, web, website)
+    
+    return product_dict'''
+
+def parse_bobs_for_products(web, website, cursor):
 
     product_dict = {}
     product_grid = web.find_element(By.XPATH, vendorDict.vendors_dict[website]['product-grid'])
@@ -338,7 +389,7 @@ def writelines(filename, data):
         for d in data:
             print(d, file=fout)
 
-def parse_vendor(website, web, query):
+def parse_vendor(website, web, query, cursor):
     web.get(website)
     if website == 'https://www.ashleyfurniture.com/': #random popups
         time.sleep(12)
@@ -351,7 +402,7 @@ def parse_vendor(website, web, query):
     search_input.submit()
 
     if website == 'https://www.mybobs.com/':
-        return parse_bobs_for_products(web, website)
+        return parse_bobs_for_products(web, website, cursor)
     elif website == 'https://www.bedbathandbeyond.com/':
         return parse_bbb_for_products(web, website)
     elif website == 'https://www.wayfair.com/':
@@ -490,6 +541,18 @@ def get_query_vector(query, tfidf_vectorizer, feature_names):
 
 
 def main():
+    conn = sqlite3.connect('product_data.db')
+    cursor = conn.cursor()
+    cursor.execute('CREATE TABLE IF NOT EXISTS product_data(Query TEXT, Website TEXT, Product_Name TEXT, Link TEXT, Price REAL, Description TEXT)')
+
+    
+    
+    
+    
+    
+    
+    
+    
     query = input('Enter a query to search for: ').strip().lower()
     websites = get_seller_info()
     website_dict = {} #dictionary of websites and their product dictionary
@@ -503,7 +566,7 @@ def main():
             for website in websites:
                 if website == 'https://www.wayfair.com/': #issue with bot detection
                     break
-                new_dict[website] = parse_vendor(website, web, query)
+                new_dict[website] = parse_vendor(website, web, query, cursor)
             new_df = process_product_data_append(new_dict, query)
             df = pd.concat([df, new_df], ignore_index=True)
             web.quit()
@@ -522,6 +585,7 @@ def main():
     website_dict = dataframe_to_nested_dict(df)
 
 
+
     
     descriptions_list = df['Description'].tolist()
     #descriptions_list = gather_descriptions(query, df)
@@ -531,6 +595,13 @@ def main():
     expanded_query = expand_query(query, df)
     #expanded_query = ' '.join(list(set(expanded_query.split())))
 
+    # add df to sqlite db
+    for index, row in df.iterrows():
+        cursor.execute('INSERT INTO product_data VALUES (?, ?, ?, ?, ?, ?)', (row['Query'], row['Website'], row['Product Name'], row['Link'], row['Price'], row['Description']))
+    conn.commit()
+    conn.close()
+
+
     #query_vector = get_query_vector(expanded_query, tfidf_vectorizer, desc_feature_names)
     query_vector = tfidf_vectorizer.transform([expanded_query])
  
@@ -539,6 +610,8 @@ def main():
     # Retrieve the top N rows from the DataFrame based on the top indices
     #top_similar_docs = df.iloc[top_indices]
     
+    
+
     # Format the results in a readable manner
     formatted_results = []
     for idx in top_indices:
